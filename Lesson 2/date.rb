@@ -1,6 +1,5 @@
 months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 total_days = 0
-has_error = false
 
 puts "Введите день"
 user_day = gets.chomp.to_i
@@ -20,8 +19,8 @@ if (months[user_month - 1] == nil) || (user_day < 1) || (user_day > months[user_
   exit
 end
  
-months.each.with_index do |days, month_index|
-  if month_index == user_month - 1
+months.each.with_index(1) do |days, month_index|
+  if month_index == user_month
     total_days += user_day
     break
   else

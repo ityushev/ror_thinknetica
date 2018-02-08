@@ -1,6 +1,6 @@
 # Сумма покупок
 
-items = Hash.new
+items = {}
 total_price = 0
 
 loop do
@@ -17,7 +17,7 @@ loop do
 
   item_sum = price * quantity
   total_price += item_sum
-  items[item] = {"Цена за единицу" => price, "Количество" => quantity, "Итоговая сумма" => item_sum}  
+  items[item] = {price: price, quantity: quantity, sum: item_sum}  
 end
 
 puts items
