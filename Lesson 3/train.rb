@@ -29,14 +29,23 @@ class Train
   def set_route(route)
     @route = route
     @station_index = 0
+    current_station.receive_train(self)
   end
 
   def move_forward
-    @station_index += 1 if @route.stations.size > @station_index + 1
+    unless next_station.nil?
+      current_station.send_train(self)
+      next_station.receive_train(self)
+      @station_index += 1 
+    end
   end
 
   def move_back
-    @station_index -= 1 if @station_index > 0
+    unless previous_station.nil?
+      current_station.send_train(self)
+      previous_station.receive_train(self)
+      @station_index -= 1
+    end
   end
 
   def previous_station
