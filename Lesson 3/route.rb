@@ -14,6 +14,6 @@ class Route
   end
 
   def show_stations
-    @stations.each { |station| puts station.name }
+    puts @stations.map { |station| station.name }
   end
 end

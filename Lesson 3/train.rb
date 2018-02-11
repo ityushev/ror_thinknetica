@@ -39,11 +39,15 @@ class Train
     @station_index -= 1 if @station_index > 0
   end
 
-  def closest_stations
-    closest_stations = []
-    closest_stations << @route.stations[@station_index - 1] if @station_index > 0
-    closest_stations << @route.stations[@station_index] 
-    closest_stations << @route.stations[@station_index + 1] if @route.stations.size > @station_index + 1
-    return closest_stations
+  def previous_station
+    @route.stations[@station_index - 1] if @station_index > 0
+  end
+
+  def next_station
+    @route.stations[@station_index + 1] if @route.stations.size > @station_index + 1
+  end
+
+  def current_station
+    @route.stations[@station_index]
   end
 end
