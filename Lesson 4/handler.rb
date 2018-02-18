@@ -1,11 +1,11 @@
-require_relative "station"
-require_relative "train"
-require_relative "passenger_train"
-require_relative "cargo_train"
-require_relative "route"
-require_relative "vagon"
-require_relative "cargo_vagon"
-require_relative "passenger_vagon"
+require_relative 'station'
+require_relative 'train'
+require_relative 'passenger_train'
+require_relative 'cargo_train'
+require_relative 'route'
+require_relative 'vagon'
+require_relative 'cargo_vagon'
+require_relative 'passenger_vagon'
 
 class Handler
 
@@ -24,7 +24,7 @@ class Handler
   end
 
   def create_train(train_number, train_type)
-    trains << Object.const_get(train_type).new(train_number)
+    trains << train_type.new(train_number)
   end
 
   def create_route(from, to)
@@ -58,11 +58,4 @@ class Handler
   def move_back(train_index)
     trains[train_index].move_back
   end
-
-  private
-
-  attr_writer :stations
-  attr_writer :trains
-  attr_writer :routes
-
 end
