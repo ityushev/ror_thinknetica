@@ -1,14 +1,16 @@
 require_relative 'manufacturer'
+require_relative 'instance_counter'
 
 class Train
   include Manufacturer
+  include InstanceCounter
 
   attr_reader :speed
   attr_reader :vagons
   attr_reader :route
   attr_reader :number
 
-  @@trains = []
+  @@trains = {}
 
   def self.find(number)
     @@trains[number]
@@ -18,7 +20,8 @@ class Train
     @number = number
     @vagons = []
     @speed = 0
-    @@trains[number] << self
+    @@trains[number] = self
+    register_instance
   end
 
   def speed_up(additional_speed)
