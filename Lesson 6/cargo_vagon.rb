@@ -1,0 +1,2 @@
+class CargoVagon < Vagon
+end
