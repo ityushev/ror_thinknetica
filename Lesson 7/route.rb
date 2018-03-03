@@ -22,10 +22,14 @@ class Route
   end
 
   def remove_station(station_index)
-    @stations.delete_at(station_index) if station_index > 0 && station_index < @stations.size - 1  
+    @stations.delete_at(station_index) if (station_index > 0 && station_index < @stations.size && @stations.size > 2)
   end
 
   def show_stations
     puts @stations.map { |station| station.name }
+  end
+
+  def to_s
+    "#{stations[0]} - #{stations[-1]}"
   end
 end

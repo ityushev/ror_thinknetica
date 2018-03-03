@@ -22,7 +22,7 @@ class Station
     register_instance
   end
 
-  def all_trains
+  def each_train
     trains.each { |train| yield(train) }
   end
 
@@ -36,6 +36,10 @@ class Station
 
   def trains_by_type(type)
     @trains.select { |train| train.type == type }
+  end
+
+  def to_s
+    "Станция #{name}"
   end
 
   private

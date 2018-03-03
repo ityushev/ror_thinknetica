@@ -25,7 +25,7 @@ class Menu
 11. Вывести список поездов
 12. Занять место (объем) в вагоне)
 
-  TRAIN_TYPES = { 'pass' => PassengerTrain, 'cargo' => CargoTrain }
+  TRAIN_TYPES = { 'p' => PassengerTrain, 'c' => CargoTrain }
   INDENT = '- '
 
   def initialize(handler)
@@ -46,10 +46,6 @@ class Menu
     raise "Неверный тип объекта, ожидается Handler" unless handler.is_a? Handler
     true
   end
-
-  # def show_message(text)
-  #   puts "#{INDENT}#{text}"
-  # end
 
   def actions_list
     puts ACTIONS
@@ -152,7 +148,7 @@ class Menu
     view_stations_in_route(route_index)
     station_index = gets.chomp.to_i
     
-    raise 'Ошибка, выбрана несуществующая станция' if station.nil?
+    raise 'Ошибка, выбрана несуществующая станция' if handler.routes[route_index].stations[station_index].nil?
 
     handler.remove_station_from_route(route_index, station_index)
   rescue RuntimeError => e
@@ -238,14 +234,16 @@ class Menu
 
   def view_stations
     handler.stations.each do |station|
-      puts 'Cтанция ' + station.name
+      puts station
       if station.trains.size.zero?
         puts '- На станции нет поездов'
       else
         puts '- Поезда:'
-        station.all_trains do |train| 
-          train.all_vagons do |vagon, i|
-            puts "#{i} / #{vagon.summary}"
+        station.each_train do |train|
+          puts "- #{train}"
+          puts '-- Вагоны:'
+          train.each_vagon do |vagon, i|
+            puts "-- #{i}: #{vagon}"
           end
         end
       end    
@@ -274,7 +272,7 @@ class Menu
       puts 'Введите объем'
       selected_vagon.occupy_volume(gets.to_f)
     else
-      selected_vagon.occupy_place
+      selected_vagon.occupy_volume
     end
   end
 

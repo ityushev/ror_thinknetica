@@ -29,7 +29,7 @@ class Train
     register_instance
   end
 
-  def all_vagons
+  def each_vagon
     vagons.each.with_index(1) { |vagon, i| yield(vagon, i) }
   end
 
@@ -69,6 +69,10 @@ class Train
     current_station.send_train(self)
     previous_station.receive_train(self)
     @station_index -= 1
+  end
+
+  def to_s
+    "#{number} | тип: #{self.class} | Вагонов: #{vagons.size}"
   end
 
   protected
