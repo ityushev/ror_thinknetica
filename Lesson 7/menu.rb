@@ -281,16 +281,15 @@ class Menu
   end
 
   def station_exists?(station)
-    handler.stations[station].nil? ? false : true
+    !handler.stations[station].nil?
   end
 
   def route_exists?(route)
-    handler.routes[route].nil? ? false : true
+    !handler.routes[route].nil?
   end
 
   def train_exists?(train)
-    handler.trains[train].nil? ? false : true
-   
+    !handler.trains[train].nil?
   end
 
   def view_list(list)
