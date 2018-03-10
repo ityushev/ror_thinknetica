@@ -14,10 +14,10 @@ class Train
   attr_reader :route
   attr_reader :number
 
-  @@trains = {}
+  @trains = {}
 
   def self.find(number)
-    @@trains[number]
+    @trains[number]
   end
 
   def initialize(number)
@@ -25,7 +25,7 @@ class Train
     validate!
     @vagons = []
     @speed = 0
-    @@trains[number] = self
+    @trains[number] = self
     register_instance
   end
 

@@ -8,17 +8,17 @@ class Station
   attr_reader :name
   attr_reader :trains
 
-  @@stations = []
+  @stations = []
 
   def self.all
-    @@stations
+    @stations
   end
 
   def initialize(name)
     @name = name
     validate!
     @trains = []
-    @@stations << self
+    @stations << self
     register_instance
   end
 

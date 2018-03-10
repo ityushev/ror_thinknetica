@@ -59,25 +59,20 @@ class Menu
     puts 'Введите название станции'
     station_name = gets.chomp
 
-    raise 'Ошибка, такая станция уже создана!' if handler.stations.any? { |station| station.name == station_name }
+    raise 'Ошибка, такая станция уже создана!' if station_name_exists?(station_name)
 
     handler.create_station(station_name)
   rescue RuntimeError => e
     puts e.message
   end
 
+  def station_name_exists?(station_name)
+    handler.stations.any? { |station| station.name == station_name }
+  end
+
   def create_train
-    puts 'Введите номер поезда'
-    train_number = gets.chomp
-
-    raise 'Ошибка, такой поезд уже создан!' if handler.trains.any? { |train| train.number == train_number }
-
-    puts 'Выберите тип поезда'
-    train_types_list
-    train_type = TRAIN_TYPES[gets.chomp]
-
-    raise 'Ошибка, введен некорректный тип поезда' if train_type.nil?
-
+    train_number = request_train_number
+    train_type = request_train_type
     handler.create_train(train_number, train_type)
 
     puts "Создан поезд #{train_number}"
@@ -86,50 +81,83 @@ class Menu
     retry
   end
 
+  def request_train_number
+    puts 'Введите номер поезда'
+    train_number = gets.chomp
+    raise 'Ошибка, такой поезд уже создан!' if train_number_exists?(train_number)
+  end
+
+  def request_train_type
+    puts 'Выберите тип поезда'
+    train_types_list
+    train_type = TRAIN_TYPES[gets.chomp]
+    raise 'Ошибка, введен некорректный тип поезда' if train_type.nil?
+  end
+
+  def train_number_exists?(train_number)
+    handler.trains.any? { |train| train.number == train_number }
+  end
+
+  def enough_stations?
+    handler.stations.size >= 2
+  end
+
   def create_route
-    raise 'Ошибка, должно быть создано минимум 2 станции' if handler.stations.size < 2
-
-    puts 'Доступные станции:'
-    view_list(handler.stations)
-
-    puts 'Выберите начальную станцию'
-    from = gets.chomp.to_i
-
-    raise 'Ошибка, такой станции нет' unless station_exists?(from)
-
-    puts 'Выберите конечную станцию'
-    to = gets.chomp.to_i
-
-    raise 'Ошибка, такой станции нет' unless station_exists?(to)
+    raise 'Ошибка, должно быть создано минимум 2 станции' unless enough_stations?
+    available_stations
+    from = request_station_from
+    to = request_station_to
     raise 'Ошибка, выберите разные станции' if from == to
-
     handler.create_route(from, to)
   rescue RuntimeError => e
     puts e.message
   end
 
+  def available_stations
+    puts 'Доступные станции:'
+    view_list(handler.stations)
+  end
+
+  def request_station_from
+    puts 'Выберите начальную станцию'
+    from = gets.chomp.to_i
+    raise 'Ошибка, такой станции нет' unless station_exists?(from)
+  end
+
+  def request_station_to
+    puts 'Выберите конечную станцию'
+    to = gets.chomp.to_i
+    raise 'Ошибка, такой станции нет' unless station_exists?(to)
+  end
+
   def add_station_to_route
-    puts 'Выберите маршрут:'
-    view_list(handler.routes)
-    route_index = gets.chomp.to_i
-
-    raise 'Ошибка, выбран несуществующий маршрут' unless route_exists?(route_index)
-
-    puts 'Выберите станцию:'
-
-    free_stations = free_stations(route_index)
-    raise 'Ошибка, для этого маршрута нет доступных станций' if free_stations.size.zero?
-
-    view_list(free_stations)
-    station = free_stations[gets.chomp.to_i]
-
-    raise 'Ошибка, выбрана несуществующая станция' if station.nil?
-    raise 'Ошибка, станция уже есть в маршруте' unless free_stations.include? station
-
-    station_index = handler.stations.index(station)
+    route_index = request_route
+    station_index = request_station(route_index)
     handler.add_station_to_route(route_index, station_index)
   rescue RuntimeError => e
     puts e.message
+  end
+
+  def request_route
+    puts 'Выберите маршрут:'
+    view_list(handler.routes)
+    route_index = gets.chomp.to_i
+    raise 'Ошибка, выбран несуществующий маршрут' unless route_exists?(route_index)
+  end
+
+  def request_station(route_index)
+    free_stations = free_stations(route_index)
+    raise 'Ошибка, для этого маршрута нет доступных станций' if free_stations.size.zero?
+    puts 'Выберите станцию:'
+    view_list(free_stations)
+    station = free_stations[gets.chomp.to_i]
+    validate_route_station!(station, free_stations)
+    handler.stations.index(station)
+  end
+
+  def validate_route_station!(station, free_stations)
+    raise 'Ошибка, выбрана несуществующая станция' if station.nil?
+    raise 'Ошибка, станция уже есть в маршруте' unless free_stations.include? station
   end
 
   def free_stations(route_index)
@@ -137,21 +165,23 @@ class Menu
   end
 
   def remove_station_from_route
-    puts 'Выберите маршрут:'
-    view_list(handler.routes)
-    route_index = gets.chomp.to_i
-
-    raise 'Ошибка, выбран несуществующий маршрут' unless route_exists?(route_index)
-
-    puts 'Выберите станцию:'
-    view_stations_in_route(route_index)
-    station_index = gets.chomp.to_i
-
-    raise 'Ошибка, выбрана несуществующая станция' if handler.routes[route_index].stations[station_index].nil?
+    route_index = request_route
+    station_index = request_station_in_route(route_index)
 
     handler.remove_station_from_route(route_index, station_index)
   rescue RuntimeError => e
     puts e.message
+  end
+
+  def request_station_in_route(route_index)
+    puts 'Выберите станцию:'
+    view_stations_in_route(route_index)
+    station_index = gets.chomp.to_i
+    raise 'Ошибка, выбрана несуществующая станция' unless station_in_route?(route_index, station_index)
+  end
+
+  def station_in_route?(route_index, station_index)
+    !handler.routes[route_index].stations[station_index].nil?
   end
 
   def view_stations_in_route(route_index)
