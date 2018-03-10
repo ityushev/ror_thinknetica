@@ -12,7 +12,7 @@ require_relative 'validate'
 class Menu
   include Validate
 
-  ACTIONS =  %(1. Создать станцию
+  ACTIONS = %(1. Создать станцию
 2. Создать поезд
 3. Создать маршрут
 4. Добавить станцию в маршрут
@@ -23,10 +23,10 @@ class Menu
 9. Переместить поезд
 10. Вывести список станций и список поездов на станциях
 11. Вывести список поездов
-12. Занять место (объем) в вагоне)
+12. Занять место (объем) в вагоне).freeze
 
-  TRAIN_TYPES = { 'p' => PassengerTrain, 'c' => CargoTrain }
-  INDENT = '- '
+  TRAIN_TYPES = { 'p' => PassengerTrain, 'c' => CargoTrain }.freeze
+  INDENT = '- '.freeze
 
   def initialize(handler)
     @handler = handler
@@ -43,7 +43,7 @@ class Menu
   attr_reader :handler
 
   def validate!
-    raise "Неверный тип объекта, ожидается Handler" unless handler.is_a? Handler
+    raise 'Неверный тип объекта, ожидается Handler' unless handler.is_a? Handler
     true
   end
 
@@ -52,35 +52,31 @@ class Menu
   end
 
   def train_types_list
-    TRAIN_TYPES.each { |code, type| puts "#{code}: #{type}"}
+    TRAIN_TYPES.each { |code, type| puts "#{code}: #{type}" }
   end
 
   def create_station
     puts 'Введите название станции'
     station_name = gets.chomp
 
-    raise 'Ошибка, такая станция уже создана!' if station_exists?(station_name)
+    raise 'Ошибка, такая станция уже создана!' if handler.stations.any? { |station| station.name == station_name }
 
     handler.create_station(station_name)
   rescue RuntimeError => e
     puts e.message
   end
 
-  def station_exists?(station_name)
-    handler.stations.any? { |station| station.name == station_name }    
-  end
-
   def create_train
     puts 'Введите номер поезда'
     train_number = gets.chomp
 
-    raise 'Ошибка, такой поезд уже создан!'  if train_exists?(train_number)
-   
+    raise 'Ошибка, такой поезд уже создан!' if handler.trains.any? { |train| train.number == train_number }
+
     puts 'Выберите тип поезда'
     train_types_list
     train_type = TRAIN_TYPES[gets.chomp]
 
-    raise 'Ошибка, введен некорректный тип поезда' if train_type.nil? 
+    raise 'Ошибка, введен некорректный тип поезда' if train_type.nil?
 
     handler.create_train(train_number, train_type)
 
@@ -90,19 +86,15 @@ class Menu
     retry
   end
 
-  def train_exists?(train_number)
-    handler.trains.any? { |train| train.number == train_number } 
-  end
-
   def create_route
     raise 'Ошибка, должно быть создано минимум 2 станции' if handler.stations.size < 2
- 
+
     puts 'Доступные станции:'
     view_list(handler.stations)
 
     puts 'Выберите начальную станцию'
     from = gets.chomp.to_i
-    
+
     raise 'Ошибка, такой станции нет' unless station_exists?(from)
 
     puts 'Выберите конечную станцию'
@@ -122,7 +114,7 @@ class Menu
     route_index = gets.chomp.to_i
 
     raise 'Ошибка, выбран несуществующий маршрут' unless route_exists?(route_index)
-   
+
     puts 'Выберите станцию:'
 
     free_stations = free_stations(route_index)
@@ -140,7 +132,6 @@ class Menu
     puts e.message
   end
 
-
   def free_stations(route_index)
     handler.stations - handler.routes[route_index].stations
   end
@@ -155,7 +146,7 @@ class Menu
     puts 'Выберите станцию:'
     view_stations_in_route(route_index)
     station_index = gets.chomp.to_i
-    
+
     raise 'Ошибка, выбрана несуществующая станция' if handler.routes[route_index].stations[station_index].nil?
 
     handler.remove_station_from_route(route_index, station_index)
@@ -168,20 +159,19 @@ class Menu
   end
 
   def set_route
-
     raise 'Ошибка, не созданы поезда' if handler.trains.size.zero?
     raise 'Ошибка, не созданы маршруты' if handler.routes.size.zero?
-    
+
     puts 'Выберите поезд:'
     view_list(handler.trains)
     train_index = gets.chomp.to_i
 
     raise 'Ошибка, выбран несуществующий поезд' unless train_exists?(train_index)
-   
+
     puts 'Выберите маршрут:'
     view_list(handler.routes)
     route_index = gets.chomp.to_i
-    
+
     raise 'Ошибка, выбран несуществующий маршрут' unless route_exists?(route_index)
 
     handler.set_route(route_index, train_index)
@@ -193,13 +183,13 @@ class Menu
     puts 'Выберите поезд:'
     view_list(handler.trains)
     train_index = gets.chomp.to_i
-    
+
     raise 'Ошибка, выбран несуществующий поезд' unless train_exists?(train_index)
 
     if handler.trains[train_index].is_a? PassengerTrain
       puts 'Введите количество мест'
       vagon = PassengerVagon.new(gets.chomp.to_i)
-    else 
+    else
       puts 'Введите объем'
       vagon = CargoVagon.new(gets.chomp.to_i)
     end
@@ -213,7 +203,7 @@ class Menu
     puts 'Выберите поезд:'
     view_list(handler.trains)
     train_index = gets.chomp.to_i
-    
+
     raise 'Ошибка, выбран несуществующий поезд' unless train_exists?(train_index)
 
     handler.remove_vagon(train_index)
@@ -225,7 +215,7 @@ class Menu
     puts 'Выберите поезд:'
     view_list(handler.trains)
     train_index = gets.chomp.to_i
-    
+
     raise 'Ошибка, выбран несуществующий поезд' unless train_exists?(train_index)
 
     puts 'Выберите направление: "1" - вперед. "2" - назад.'
@@ -254,7 +244,7 @@ class Menu
             puts "-- #{i}: #{vagon}"
           end
         end
-      end    
+      end
     end
   end
 
@@ -266,7 +256,7 @@ class Menu
     puts 'Выберите поезд'
     view_list(handler.trains)
     train_index = gets.chomp.to_i
-    
+
     raise 'Ошибка, выбран несуществующий поезд' unless train_exists?(train_index)
 
     puts 'Выберите вагон'
@@ -285,7 +275,7 @@ class Menu
   end
 
   def vagon_exists?(train_index, vagon_index)
-    vagon_index >=0 && handler.trains[train_index].vagons.size > vagon_index
+    vagon_index >= 0 && handler.trains[train_index].vagons.size > vagon_index
   end
 
   def station_exists?(station)
@@ -333,7 +323,7 @@ class Menu
   def request_action
     loop do
       puts '----------------------'
-      puts 'Введите код операции. help - список команд, exit - выход'
+      puts 'Введите код операции. help - список команд, exit - завершение программы'
       handle_action(gets.chomp)
     end
   end
